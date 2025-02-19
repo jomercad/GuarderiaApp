@@ -34,4 +34,53 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Obtener detalles de un grupo por ID
+router.get("/:id", async (req, res) => {
+  try {
+    const group = await db.Group.findByPk(req.params.id, {
+      include: [{ model: db.Student, as: "students" }],
+    });
+    if (!group) return res.status(404).json({ error: "Grupo no encontrado" });
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Actualizar grupo
+router.put("/:id", async (req, res) => {
+  try {
+    const { name, criteria, studentIds } = req.body;
+    const group = await db.Group.findByPk(req.params.id);
+    if (!group) return res.status(404).json({ error: "Grupo no encontrado" });
+
+    // Actualizar campos
+    group.name = name || group.name;
+    group.criteria = criteria || group.criteria;
+    await group.save();
+
+    // Actualizar estudiantes asociados
+    if (studentIds && studentIds.length > 0) {
+      const students = await db.Student.findAll({ where: { id: studentIds } });
+      await group.setStudents(students);
+    }
+
+    res.json(group);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Eliminar grupo
+router.delete("/:id", async (req, res) => {
+  try {
+    const group = await db.Group.findByPk(req.params.id);
+    if (!group) return res.status(404).json({ error: "Grupo no encontrado" });
+    await group.destroy();
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

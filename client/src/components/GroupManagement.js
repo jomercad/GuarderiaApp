@@ -12,64 +12,117 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
 
 function GroupManagement() {
+  const [groups, setGroups] = useState([]);
+  const [students, setStudents] = useState([]);
   const [group, setGroup] = useState({
+    id: null,
     name: "",
     criteria: "",
     studentIds: [],
   });
-  const [students, setStudents] = useState([]);
-  const [message, setMessage] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
+  // Cargar datos iniciales
   useEffect(() => {
-    // Obtener estudiantes para asignar al grupo
+    fetch("/api/groups")
+      .then((res) => res.json())
+      .then((data) => setGroups(data))
+      .catch(console.error);
+
     fetch("/api/students")
       .then((res) => res.json())
       .then((data) => setStudents(data))
-      .catch((err) => console.error(err));
+      .catch(console.error);
   }, []);
 
+  // Manejar cambios en el formulario
   const handleChange = (e) => {
     setGroup({ ...group, [e.target.name]: e.target.value });
   };
 
   const handleStudentSelection = (e) => {
-    const {
-      target: { value },
-    } = e;
     setGroup({
       ...group,
-      studentIds: typeof value === "string" ? value.split(",") : value,
+      studentIds: e.target.value,
     });
   };
 
+  // Enviar formulario (crear/editar)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("/api/groups", {
-        method: "POST",
+      const method = group.id ? "PUT" : "POST";
+      const url = group.id ? `/api/groups/${group.id}` : "/api/groups";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(group),
       });
+
       if (response.ok) {
-        setMessage("Grupo creado exitosamente");
-        setGroup({ name: "", criteria: "", studentIds: [] });
-      } else {
-        setMessage("Error al crear grupo");
+        const updatedGroup = await response.json();
+        if (group.id) {
+          setGroups(
+            groups.map((g) => (g.id === updatedGroup.id ? updatedGroup : g))
+          );
+        } else {
+          setGroups([...groups, updatedGroup]);
+        }
+        resetForm();
       }
     } catch (error) {
       console.error(error);
-      setMessage("Error en la comunicación con el servidor");
     }
   };
 
+  // Editar grupo
+  const handleEdit = (groupToEdit) => {
+    setGroup({
+      id: groupToEdit.id,
+      name: groupToEdit.name,
+      criteria: groupToEdit.criteria,
+      studentIds: groupToEdit.students.map((s) => s.id),
+    });
+  };
+
+  // Eliminar grupo
+  const handleDelete = async () => {
+    try {
+      await fetch(`/api/groups/${deleteId}`, { method: "DELETE" });
+      setGroups(groups.filter((g) => g.id !== deleteId));
+      setDeleteId(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const resetForm = () => {
+    setGroup({ id: null, name: "", criteria: "", studentIds: [] });
+  };
+
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 3, mt: 4 }}>
+    <Container maxWidth="lg">
+      {/* Formulario de creación/edición */}
+      <Paper elevation={3} sx={{ p: 3, mt: 4, mb: 4 }}>
         <Typography variant="h5" align="center" gutterBottom>
-          Gestión de Grupos
+          {group.id ? "Editar Grupo" : "Crear Nuevo Grupo"}
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <Grid container spacing={2}>
@@ -86,27 +139,25 @@ function GroupManagement() {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Criterios (ej. edad, actividad)"
+                label="Criterios"
                 name="criteria"
                 value={group.criteria}
                 onChange={handleChange}
+                multiline
+                rows={3}
               />
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel id="student-select-label">
-                  Seleccionar Estudiantes
-                </InputLabel>
+                <InputLabel>Estudiantes</InputLabel>
                 <Select
-                  labelId="student-select-label"
                   multiple
                   value={group.studentIds}
                   onChange={handleStudentSelection}
-                  label="Seleccionar Estudiantes"
                   renderValue={(selected) =>
                     students
-                      .filter((student) => selected.includes(student.id))
-                      .map((student) => student.name)
+                      .filter((s) => selected.includes(s.id))
+                      .map((s) => s.name)
                       .join(", ")
                   }
                 >
@@ -118,22 +169,64 @@ function GroupManagement() {
                 </Select>
               </FormControl>
             </Grid>
+            <Grid item xs={12}>
+              <Button type="submit" variant="contained" fullWidth>
+                {group.id ? "Actualizar Grupo" : "Crear Grupo"}
+              </Button>
+            </Grid>
           </Grid>
-          <Button variant="contained" type="submit" fullWidth sx={{ mt: 3 }}>
-            Crear Grupo
-          </Button>
-          {message && (
-            <Typography
-              variant="body1"
-              align="center"
-              color="primary"
-              sx={{ mt: 2 }}
-            >
-              {message}
-            </Typography>
-          )}
         </Box>
       </Paper>
+
+      {/* Listado de grupos */}
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        Grupos Existentes
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Nombre</TableCell>
+              <TableCell>Criterios</TableCell>
+              <TableCell>Estudiantes</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {groups.map((group) => (
+              <TableRow key={group.id}>
+                <TableCell>{group.name}</TableCell>
+                <TableCell>{group.criteria}</TableCell>
+                <TableCell>
+                  {group.students?.map((s) => s.name).join(", ")}
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleEdit(group)}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton onClick={() => setDeleteId(group.id)}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Diálogo de confirmación para eliminar */}
+      <Dialog open={!!deleteId} onClose={() => setDeleteId(null)}>
+        <DialogTitle>Confirmar Eliminación</DialogTitle>
+        <DialogContent>
+          ¿Estás seguro de que deseas eliminar este grupo?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteId(null)}>Cancelar</Button>
+          <Button onClick={handleDelete} color="error">
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
