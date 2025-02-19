@@ -74,6 +74,7 @@ router.get("/", async (req, res) => {
     });
     res.json(students);
   } catch (error) {
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -93,6 +94,7 @@ router.get("/:id", async (req, res) => {
     }
     res.json(student);
   } catch (error) {
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -137,6 +139,7 @@ router.put("/:id", async (req, res) => {
 
     res.json(student);
   } catch (error) {
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -151,6 +154,7 @@ router.delete("/:id", async (req, res) => {
     await student.destroy();
     res.status(204).send(); // 204 No Content
   } catch (error) {
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
