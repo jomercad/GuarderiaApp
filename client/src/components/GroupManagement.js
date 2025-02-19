@@ -143,8 +143,6 @@ function GroupManagement() {
                 name="criteria"
                 value={group.criteria}
                 onChange={handleChange}
-                multiline
-                rows={3}
               />
             </Grid>
             <Grid item xs={12}>
