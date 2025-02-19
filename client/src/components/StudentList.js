@@ -35,8 +35,8 @@ function StudentList() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 3, mt: 4 }}>
+    <Container maxWidth="md">
+      <Paper elevation={3} sx={{ p: 3, mt: 4, borderRadius: 2 }}>
         <Typography variant="h5" align="center" gutterBottom>
           Lista de Estudiantes
         </Typography>
