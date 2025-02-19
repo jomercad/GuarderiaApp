@@ -118,7 +118,7 @@ function GroupManagement() {
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="md">
       {/* Formulario de creación/edición */}
       <Paper elevation={3} sx={{ p: 3, mt: 4, mb: 4 }}>
         <Typography variant="h5" align="center" gutterBottom>
