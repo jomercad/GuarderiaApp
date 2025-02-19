@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
     const studentWithRelations = await db.Student.findByPk(student.id, {
       include: [
         { model: db.Parent, as: "parents" }, // Incluir padres
-        { model: db.Group, as: "group" },
+        { model: db.Group, as: "groups  " },
         { model: db.Attendance, as: "attendances" },
       ],
     });
