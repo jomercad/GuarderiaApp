@@ -1,0 +1,9 @@
+{
+  "name": "guarderia-app-v1",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node backend/app.js",
+    "dev": "nodemon backend/app.js",
+    "heroku-postbuild": "cd client && yarn install && yarn build"
+  }
+}
