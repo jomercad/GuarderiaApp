@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       gender: {
         type: DataTypes.STRING,
         validate: {
-          isIn: [["Male", "Female", "Other"]], // Validar valores permitidos
+          isIn: [["Masculino", "Femenino", "Otro"]], // Validar valores permitidos
         },
       },
       allergies: { type: DataTypes.TEXT },
