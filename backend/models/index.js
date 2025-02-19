@@ -39,7 +39,14 @@ db.Attendance = require("./attendance")(sequelize, DataTypes);
 db.StudentParent = require("./studentParent")(sequelize, DataTypes);
 
 // Tabla de relación para la relación muchos a muchos entre estudiantes y grupos
-db.GroupStudent = sequelize.define("GroupStudent", {}, { timestamps: false });
+db.GroupStudent = sequelize.define(
+  "GroupStudent",
+  {},
+  {
+    tableName: "group_students", // Nombre fijo en snake_case
+    timestamps: false,
+  }
+);
 
 // Relaciones
 // 1. Relación M:N entre Student y Parent (usando StudentParent)
