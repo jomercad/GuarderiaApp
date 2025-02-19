@@ -47,14 +47,12 @@ db.Student.belongsToMany(db.Parent, {
   through: db.StudentParent,
   as: "parents",
   foreignKey: "studentId",
-  otherKey: "parentId",
 });
 
 db.Parent.belongsToMany(db.Student, {
   through: db.StudentParent,
   as: "students",
   foreignKey: "parentId",
-  otherKey: "studentId",
 });
 
 // 2. Relación M:N entre Student y Group (usando GroupStudent)
@@ -62,14 +60,12 @@ db.Student.belongsToMany(db.Group, {
   through: db.GroupStudent,
   as: "groups",
   foreignKey: "studentId",
-  otherKey: "groupId",
 });
 
 db.Group.belongsToMany(db.Student, {
   through: db.GroupStudent,
   as: "students",
   foreignKey: "groupId",
-  otherKey: "studentId",
 });
 
 // 3. Relaciones de Asistencia (correctas)
