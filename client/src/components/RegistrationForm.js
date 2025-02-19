@@ -90,7 +90,7 @@ function RegistrationForm() {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 3, mt: 4 }}>
         <Typography variant="h5" align="center" gutterBottom>
           Registro de Estudiante y Padres
