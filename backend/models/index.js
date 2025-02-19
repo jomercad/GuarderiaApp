@@ -32,7 +32,7 @@ db.sequelize = sequelize;
 // Importar modelos
 db.Parent = require("./parent")(sequelize, DataTypes);
 db.Student = require("./student")(sequelize, DataTypes);
-db.Group = require("./groups")(sequelize, DataTypes);
+db.Group = require("./group")(sequelize, DataTypes);
 db.Attendance = require("./attendance")(sequelize, DataTypes);
 
 // Importar modelo de relación Student-Parent
