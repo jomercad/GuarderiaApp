@@ -43,6 +43,15 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));
 
 db.sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("Base de datos sincronizada con modificaciones en las tablas.");
+  })
+  .catch((error) => {
+    console.error("Error al sincronizar la base de datos:", error);
+  });
+
+db.sequelize
   .authenticate()
   .then(() => {
     console.log("Conexión a la base de datos establecida con éxito.");
