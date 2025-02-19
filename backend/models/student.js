@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   // Relación con Parent (muchos-a-muchos)
   Student.associate = (models) => {
     Student.belongsToMany(models.Parent, {
-      through: db.StudentParent,
+      through: models.StudentParent,
       as: "parents",
       foreignKey: "studentId",
       otherKey: "parentId",
