@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { User } = require("../models");
+const { User, Parent } = require("../models");
 
 // Endpoint público para registrar un usuario como "parent"
 router.post("/register-parent", async (req, res) => {
