@@ -47,6 +47,7 @@ router.post("/register-parent", async (req, res) => {
       parentId: parent.id,
     });
   } catch (error) {
+    console.error("Error en login:", error);
     res.status(500).json({ error: error.message });
   }
 });
