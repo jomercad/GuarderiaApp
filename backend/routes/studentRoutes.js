@@ -65,13 +65,13 @@ router.post(
 router.get(
   "/",
   authenticateJWT,
-  authorizeRoles(["admin", "teacher", "parent"]), // <-- Añade esto
+  authorizeRoles(["admin", "teacher", "parent"]),
   async (req, res) => {
     try {
       // Padres solo ven sus estudiantes
       if (req.user.role === "parent") {
         const parent = await db.Parent.findByPk(req.user.parentId, {
-          include: [{ model: db.Student, as: "students" }],
+          include: [{ model: db.Student, as: "Students" }],
         });
         console.log("Padre encontrado:", parent?.id);
         console.log("Estudiantes asociados:", parent?.Students?.length);
@@ -80,7 +80,7 @@ router.get(
 
       // Admin/teacher ven todos
       const students = await db.Student.findAll({
-        include: [{ model: db.Parent, as: "parents" }],
+        include: [{ model: db.Parent, as: "Parents" }],
       });
       res.json(students);
     } catch (error) {
