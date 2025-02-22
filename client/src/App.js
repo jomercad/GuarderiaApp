@@ -1,16 +1,16 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import LoginForm from "./components/LoginForm";
+import RegisterParent from "./components/RegisterParent";
 import ProtectedRoute from "./components/ProtectedRoute";
 import HomeScreen from "./components/HomeScreen";
-import LoginForm from "./components/LoginForm";
 import RegistrationForm from "./components/RegistrationForm";
 import StudentList from "./components/StudentList";
 import StudentDetail from "./components/StudentDetail";
 import EditStudent from "./components/EditStudent";
 import GroupManagement from "./components/GroupManagement";
 import AttendanceForm from "./components/AttendanceForm";
-import RegisterParent from "./components/RegisterParent";
 
 function App() {
   return (
