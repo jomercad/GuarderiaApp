@@ -5,6 +5,52 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
 
+// Endpoint público para registrar un usuario como "parent"
+router.post("/register-parent", async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+    // Validar que se envíe correo y contraseña
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ error: "El correo y la contraseña son obligatorios" });
+    }
+
+    // Verificar si ya existe un usuario con ese correo
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: "El usuario ya existe" });
+    }
+
+    // Buscar en la tabla Parent
+    let parent = await Parent.findOne({ where: { email } });
+    if (!parent) {
+      // Si no existe, crea un registro en Parent. Usa el valor de 'name' si se proporciona, o un valor por defecto.
+      parent = await Parent.create({ email, name: name || "Sin nombre" });
+    }
+
+    // Encriptar la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear el usuario con rol "parent"
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      role: "parent",
+      parentId: parent.id,
+    });
+
+    res.status(201).json({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      parentId: parent.id,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Endpoint para validar el token
 router.get("/validate", authenticateJWT, (req, res) => {
   // Suponiendo que el middleware authenticateJWT agrega req.user

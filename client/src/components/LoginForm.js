@@ -66,6 +66,17 @@ function LoginForm() {
             Ingresar
           </Button>
         </Box>
+        <Box sx={{ mt: 2, textAlign: "center" }}>
+          <Typography variant="body2">
+            ¿No tienes cuenta?{" "}
+            <Link
+              to="/register-parent"
+              style={{ textDecoration: "none", color: "blue" }}
+            >
+              Regístrate
+            </Link>
+          </Typography>
+        </Box>
       </Paper>
     </Container>
   );

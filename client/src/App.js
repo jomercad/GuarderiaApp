@@ -10,6 +10,7 @@ import StudentDetail from "./components/StudentDetail";
 import EditStudent from "./components/EditStudent";
 import GroupManagement from "./components/GroupManagement";
 import AttendanceForm from "./components/AttendanceForm";
+import RegisterParent from "./components/RegisterParent";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Routes>
         {/* Ruta pública */}
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/register-parent" element={<RegisterParent />} />
 
         {/* Rutas protegidas */}
         <Route
