@@ -4,6 +4,16 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
 
+// Endpoint para validar el token
+router.get("/validate", authenticateJWT, (req, res) => {
+  // Suponiendo que el middleware authenticateJWT agrega req.user
+  res.json({
+    id: req.user.id,
+    email: req.user.email,
+    role: req.user.role,
+  });
+});
+
 // Login
 router.post("/login", async (req, res) => {
   try {

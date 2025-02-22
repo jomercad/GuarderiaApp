@@ -10,11 +10,11 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // // Verificar token al cargar
-    // const storedToken = localStorage.getItem("token");
-    // if (storedToken) {
-    //   validateToken(storedToken);
-    // }
+    // Verificar token al cargar
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      validateToken(storedToken);
+    }
   }, []);
 
   const validateToken = async (token) => {
