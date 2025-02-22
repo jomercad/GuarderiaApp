@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
-import { ProtectedRoute } from "./ProtectedRoute";
+import ProtectedRoute from "./ProtectedRoute";
 
 function HomeScreen() {
   const { user, logout, loading } = useAuth();
