@@ -62,26 +62,33 @@ router.post(
 );
 
 // Listar estudiantes (acceso diferenciado)
-router.get("/", authenticateJWT, async (req, res) => {
-  try {
-    // Padres solo ven sus estudiantes
-    if (req.user.role === "parent") {
-      const parent = await db.Parent.findByPk(req.user.parentId, {
-        include: [{ model: db.Student, as: "students" }],
-      });
-      return res.json(parent.students);
-    }
+router.get(
+  "/",
+  authenticateJWT,
+  authorizeRoles(["admin", "teacher", "parent"]), // <-- Añade esto
+  async (req, res) => {
+    try {
+      // Padres solo ven sus estudiantes
+      if (req.user.role === "parent") {
+        const parent = await db.Parent.findByPk(req.user.parentId, {
+          include: [{ model: db.Student, as: "students" }],
+        });
+        console.log("Padre encontrado:", parent?.id);
+        console.log("Estudiantes asociados:", parent?.Students?.length);
+        return res.json(parent.Students);
+      }
 
-    // Admin/teacher ven todos
-    const students = await db.Student.findAll({
-      include: [{ model: db.Parent, as: "parents" }],
-    });
-    res.json(students);
-  } catch (error) {
-    console.error("Error en GET /api/students:", error);
-    res.status(500).json({ error: error.message });
+      // Admin/teacher ven todos
+      const students = await db.Student.findAll({
+        include: [{ model: db.Parent, as: "parents" }],
+      });
+      res.json(students);
+    } catch (error) {
+      console.error("Error en GET /api/students:", error);
+      res.status(500).json({ error: error.message });
+    }
   }
-});
+);
 
 // Obtener estudiante específico
 router.get("/:id", authenticateJWT, async (req, res) => {
