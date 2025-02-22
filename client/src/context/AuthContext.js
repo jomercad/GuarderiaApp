@@ -46,6 +46,7 @@ export function AuthProvider({ children }) {
       if (response.ok) {
         const { token, role } = await response.json();
         localStorage.setItem("token", token);
+        console.log("Token guardado:", token); // Agrega este log para depuración
         setToken(token);
         setUser({ role });
         navigate("/");
