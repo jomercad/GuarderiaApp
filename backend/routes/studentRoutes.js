@@ -12,12 +12,14 @@ router.post(
     try {
       const { name, dateOfBirth, gender, allergies, parents } = req.body;
 
+      // Validar datos básicos del estudiante
       if (!name || !dateOfBirth) {
         return res
           .status(400)
           .json({ error: "Nombre y fecha de nacimiento son requeridos" });
       }
 
+      // Crear estudiante
       const student = await db.Student.create({
         name,
         dateOfBirth: new Date(dateOfBirth).toISOString().split("T")[0],
@@ -25,6 +27,7 @@ router.post(
         allergies,
       });
 
+      // Validar y procesar padres
       if (parents && parents.length > 0) {
         const parentRecords = await Promise.all(
           parents
@@ -48,12 +51,16 @@ router.post(
 
       // Obtener el estudiante con sus relaciones
       const studentWithRelations = await db.Student.findByPk(student.id, {
-        include: [db.Parent, db.Group, db.Attendance],
+        include: [
+          { model: db.Parent, as: "parents" }, // Incluir padres
+          { model: db.Group, as: "groups" },
+          { model: db.Attendance, as: "attendances" },
+        ],
       });
 
       res.status(201).json(studentWithRelations);
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error detallado:", error);
       res
         .status(500)
         .json({ error: "Error en el servidor", details: error.message });
@@ -71,16 +78,16 @@ router.get(
       // Padres solo ven sus estudiantes
       if (req.user.role === "parent") {
         const parent = await db.Parent.findByPk(req.user.parentId, {
-          include: [{ model: db.Student, as: "Students" }],
+          include: [{ model: db.Student, as: "students" }],
         });
         console.log("Padre encontrado:", parent?.id);
-        console.log("Estudiantes asociados:", parent?.Students?.length);
-        return res.json(parent.Students);
+        console.log("Estudiantes asociados:", parent?.students?.length);
+        return res.json(parent.students);
       }
 
       // Admin/teacher ven todos
       const students = await db.Student.findAll({
-        include: [{ model: db.Parent, as: "Parents" }],
+        include: [{ model: db.Parent, as: "parents" }],
       });
       res.json(students);
     } catch (error) {
@@ -94,7 +101,11 @@ router.get(
 router.get("/:id", authenticateJWT, async (req, res) => {
   try {
     const student = await db.Student.findByPk(req.params.id, {
-      include: [db.Parent, db.Group, db.Attendance],
+      include: [
+        { model: db.Parent, as: "parents" },
+        { model: db.Group, as: "groups" },
+        { model: db.Attendance, as: "attendances" },
+      ],
     });
 
     if (!student)
@@ -109,11 +120,12 @@ router.get("/:id", authenticateJWT, async (req, res) => {
 
     res.json(student);
   } catch (error) {
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Actualizar estudiante (admin/teacher)
+// Editar un estudiante
 router.put(
   "/:id",
   authenticateJWT,
