@@ -19,6 +19,7 @@ exports.authenticateJWT = async (req, res, next) => {
     // req.user = user;
     req.user = {
       id: user.id,
+      email: user.email,
       role: user.role,
       parentId: user.parentId,
     };
