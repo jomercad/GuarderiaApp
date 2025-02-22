@@ -1,9 +1,9 @@
-// frontend/src/components/ProtectedRoute.js
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export function ProtectedRoute({ children, allowedRoles }) {
+// Cambiar a exportación por defecto
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
 
   if (!user) {
@@ -15,4 +15,6 @@ export function ProtectedRoute({ children, allowedRoles }) {
   }
 
   return children;
-}
+};
+
+export default ProtectedRoute; // Exportación por defecto
