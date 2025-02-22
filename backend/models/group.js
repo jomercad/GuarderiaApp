@@ -1,6 +1,4 @@
 // backend/models/group.js
-const bcrypt = require("bcrypt");
-
 module.exports = (sequelize, DataTypes) => {
   const Group = sequelize.define(
     "Group",
