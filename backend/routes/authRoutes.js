@@ -59,7 +59,7 @@ router.get("/validate", authenticateJWT, (req, res) => {
     id: req.user.id,
     email: req.user.email,
     role: req.user.role,
-    parentId: user.parentId,
+    parentId: req.user.parentId,
   });
 });
 
