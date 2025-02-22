@@ -43,13 +43,17 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email, password }),
       });
 
+      const json = await response.json();
+      console.log("Respuesta de login:", json); // Log para ver qué devuelve el endpoint
+
       if (response.ok) {
-        const { token, role } = await response.json();
+        const { token, role } = json;
         localStorage.setItem("token", token);
-        console.log("Token guardado:", token); // Agrega este log para depuración
         setToken(token);
         setUser({ role });
         navigate("/");
+      } else {
+        console.error("Error al hacer login:", json);
       }
     } catch (error) {
       console.error("Login error:", error);
