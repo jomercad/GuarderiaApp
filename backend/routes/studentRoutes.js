@@ -77,7 +77,8 @@ router.get(
     try {
       // Padres solo ven sus estudiantes
       if (req.user.role === "parent") {
-        console.log("Parent ID desde el token:", req.user.parentId);
+        console.log("Parent ID desde el token:", req.user.role);
+        console.log("Parent role desde el token:", req.user.parentId);
         const parent = await db.Parent.findByPk(req.user.parentId, {
           include: [{ model: db.Student, as: "students" }],
         });

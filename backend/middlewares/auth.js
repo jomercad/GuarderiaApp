@@ -31,6 +31,7 @@ exports.authenticateJWT = async (req, res, next) => {
 
 exports.authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
+    console.log("Rol del usuario:", req.user.role);
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         error: `Acceso prohibido para el rol ${req.user.role}`,
