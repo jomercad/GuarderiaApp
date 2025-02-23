@@ -22,7 +22,6 @@ const studentRoutes = require("./routes/studentRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const authRoutes = require("./routes/authRoutes");
-const authMiddleware = require("./middlewares/authMiddleware");
 
 app.use("/api/parents", parentRoutes);
 app.use("/api/students", studentRoutes);

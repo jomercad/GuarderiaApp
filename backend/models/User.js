@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("admin", "maestro", "padre"),
         allowNull: false,
       },
-      // Este campo es solo para usuarios con rol 'padre'
       parentId: {
         type: DataTypes.INTEGER,
         allowNull: true,
