@@ -2,22 +2,20 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models");
-const { authenticateJWT, authorizeRoles } = require("../middlewares/auth");
+const { verifyToken } = require("../middlewares/auth");
 
-// Crear padre (solo admin)
-router.post(
-  "/",
-  authenticateJWT,
-  authorizeRoles(["admin"]),
-  async (req, res) => {
-    try {
-      const { name, phone, email } = req.body;
-      const parent = await db.Parent.create({ name, phone, email });
-      res.status(201).json(parent);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+// Aplica el middleware de verificación de token a todas las rutas de este router
+router.use(verifyToken);
+
+// Ruta para crear un padre
+router.post("/", async (req, res) => {
+  try {
+    const { name, phone, email } = req.body;
+    const parent = await db.Parent.create({ name, phone, email });
+    res.status(201).json(parent);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-);
+});
 
 module.exports = router;

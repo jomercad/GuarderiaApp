@@ -34,7 +34,7 @@ db.Parent = require("./parent")(sequelize, DataTypes);
 db.Student = require("./student")(sequelize, DataTypes);
 db.Group = require("./group")(sequelize, DataTypes);
 db.Attendance = require("./attendance")(sequelize, DataTypes);
-db.User = require("./User")(sequelize, DataTypes);
+db.User = require("./user")(sequelize, DataTypes);
 
 // Importar modelo de relación Student-Parent
 db.StudentParent = require("./studentParent")(sequelize, DataTypes);
@@ -96,5 +96,9 @@ db.Group.hasMany(db.Attendance, {
   foreignKey: "groupId",
   as: "attendances",
 });
+
+// Relación User-Parent
+db.User.belongsTo(db.Parent, { foreignKey: "parentId" });
+db.Parent.hasOne(db.User, { foreignKey: "parentId" });
 
 module.exports = db;

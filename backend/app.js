@@ -21,14 +21,13 @@ const parentRoutes = require("./routes/parentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
-const testDbRoutes = require("./routes/testDB");
 const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require("./middlewares/authMiddleware");
 
 app.use("/api/parents", parentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/attendances", attendanceRoutes);
-app.use("/api/test-db", testDbRoutes);
 app.use("/api/auth", authRoutes);
 
 if (process.env.NODE_ENV === "production") {

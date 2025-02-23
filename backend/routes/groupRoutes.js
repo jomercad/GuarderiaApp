@@ -2,6 +2,10 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models");
+const { verifyToken } = require("../middlewares/auth");
+
+// Aplica el middleware de verificación de token a todas las rutas de este router
+router.use(verifyToken);
 
 // Crear un grupo y asignar estudiantes
 router.post("/", async (req, res) => {
@@ -21,7 +25,6 @@ router.post("/", async (req, res) => {
 // Listar todos los grupos con sus estudiantes asignados
 router.get("/", async (req, res) => {
   try {
-    // Si tienes relaciones, asegúrate de incluirlas correctamente
     const groups = await db.Group.findAll({
       include: [{ model: db.Student, as: "students" }],
     });
@@ -59,7 +62,7 @@ router.put("/:id", async (req, res) => {
     group.criteria = criteria || group.criteria;
     await group.save();
 
-    // Actualizar estudiantes asociados
+    // Actualizar estudiantes asociados, si se proporcionan
     if (studentIds && studentIds.length > 0) {
       const students = await db.Student.findAll({ where: { id: studentIds } });
       await group.setStudents(students);

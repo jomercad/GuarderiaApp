@@ -1,43 +1,31 @@
+// backend/middlewares/auth.js
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
 
-exports.authenticateJWT = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
+// Verifica que la petición incluya un token válido
+const verifyToken = (req, res, next) => {
+  // Se espera que el token venga en el header "Authorization" en el formato "Bearer <token>"
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Token no proporcionado" });
-  }
+  if (!token) return res.status(401).json({ error: "Token no proporcionado" });
 
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId);
-
-    if (!user) throw new Error("Usuario no encontrado");
-
-    // req.user = user;
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      parentId: user.parentId,
-    };
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Token inválido" });
+    // Se adjunta la información del usuario a la petición
+    req.user = decoded;
     next();
-  } catch (error) {
-    res.status(401).json({ error: "Token inválido o expirado" });
-  }
+  });
 };
 
-exports.authorizeRoles = (...allowedRoles) => {
+// Middleware para verificar que el rol del usuario esté entre los permitidos
+const checkRole = (roles) => {
   return (req, res, next) => {
-    console.log("Rol del usuario:", req.user.role);
-    console.log("Rol del usuario:", req.user.parentId);
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        error: `Acceso prohibido para el rol ${req.user.role}`,
-      });
+    if (roles.includes(req.user.role)) {
+      next();
+    } else {
+      return res.status(403).json({ error: "Acceso denegado" });
     }
-    next();
   };
 };
+
+module.exports = { verifyToken, checkRole };

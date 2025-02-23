@@ -1,116 +1,87 @@
-const { authenticateJWT, authorizeRoles } = require("../middlewares/auth");
+// backend/routes/authRoutes.js
 const express = require("express");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { User, Parent } = require("../models");
+const jwt = require("jsonwebtoken");
+const db = require("../models"); // Incluye User y Parent
 
-// Endpoint público para registrar un usuario como "parent"
-router.post("/register-parent", async (req, res) => {
+// Ruta de registro de usuario
+router.post("/register", async (req, res) => {
   try {
-    const { email, password, name } = req.body;
-    // Validar que se envíe correo y contraseña
-    if (!email || !password) {
+    const { email, password, role } = req.body;
+
+    if (!email || !password || !role) {
       return res
         .status(400)
-        .json({ error: "El correo y la contraseña son obligatorios" });
+        .json({ error: "Email, password y role son requeridos" });
     }
 
-    // Verificar si ya existe un usuario con ese correo
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: "El usuario ya existe" });
-    }
-
-    // Buscar en la tabla Parent
-    let parent = await Parent.findOne({ where: { email } });
-    if (!parent) {
-      // Si no existe, crea un registro en Parent. Usa el valor de 'name' si se proporciona, o un valor por defecto.
-      parent = await Parent.create({ email, name: name || "Sin nombre" });
-    }
-
-    // Encriptar la contraseña
+    // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el usuario con rol "parent"
-    const user = await User.create({
+    let parentId = null;
+    if (role === "padre") {
+      // Verificar que exista un registro en la tabla de padres con el mismo email
+      const parentRecord = await db.Parent.findOne({ where: { email } });
+      if (!parentRecord) {
+        return res
+          .status(400)
+          .json({ error: "No se encontró registro de padre con ese email" });
+      }
+      parentId = parentRecord.id;
+    }
+
+    const newUser = await db.User.create({
       email,
       password: hashedPassword,
-      role: "parent",
-      parentId: parent.id,
+      role,
+      parentId,
     });
 
-    res.status(201).json({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      parentId: parent.id,
-    });
+    res
+      .status(201)
+      .json({ message: "Usuario registrado exitosamente", userId: newUser.id });
   } catch (error) {
-    console.error("Error en login:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Endpoint para validar el token
-router.get("/validate", authenticateJWT, (req, res) => {
-  // Suponiendo que el middleware authenticateJWT agrega req.user
-  res.json({
-    id: req.user.id,
-    email: req.user.email,
-    role: req.user.role,
-    parentId: req.user.parentId,
-  });
-});
-
-// Login
+// Ruta de login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email y password son requeridos" });
     }
 
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-        parentId: user.parentId,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" }
-    );
+    const user = await db.User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ error: "Credenciales inválidas" });
+    }
 
-    res.json({ token, role: user.role });
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: "Credenciales inválidas" });
+    }
+
+    // Payload del token incluye id, email, rol y parentId (si aplica)
+    const tokenPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      parentId: user.parentId,
+    };
+
+    const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    // Se envía el token y la información de rol para uso en el frontend
+    res.json({ token, role: user.role, parentId: user.parentId });
   } catch (error) {
-    console.error("Error en login:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
-// Registro (solo admin)
-router.post(
-  "/register",
-  authenticateJWT,
-  authorizeRoles(["admin"]),
-  async (req, res) => {
-    try {
-      const { email, password, role, parentId } = req.body;
-      const existingUser = await User.findOne({ where: { email } });
-
-      if (existingUser) {
-        return res.status(400).json({ error: "El email ya está registrado" });
-      }
-
-      const user = await User.create({ email, password, role, parentId });
-      res.status(201).json({ id: user.id, email: user.email, role: user.role });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-);
 
 module.exports = router;

@@ -1,79 +1,33 @@
 // frontend/src/context/AuthContext.js
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useState } from "react";
 
-const AuthContext = createContext();
+// Se crea el contexto de autenticación
+export const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const navigate = useNavigate();
+// Proveedor del contexto que mantiene el estado del usuario autenticado
+export const AuthProvider = ({ children }) => {
+  // Se intenta recuperar la información almacenada en localStorage
+  const storedUser = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null;
 
-  useEffect(() => {
-    // Verificar token al cargar
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      validateToken(storedToken);
-    }
-  }, []);
+  const [user, setUser] = useState(storedUser);
 
-  const validateToken = async (token) => {
-    try {
-      const response = await fetch("/api/auth/validate", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setToken(token);
-      } else {
-        logout();
-      }
-    } catch (error) {
-      logout();
-    }
+  // Función para iniciar sesión y almacenar la información del usuario
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  const login = async (email, password) => {
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const json = await response.json();
-      console.log("Respuesta de login:", json); // Log para ver qué devuelve el endpoint
-
-      if (response.ok) {
-        const { token, role } = json;
-        localStorage.setItem("token", token);
-        setToken(token);
-        setUser({ role });
-        navigate("/");
-      } else {
-        console.error("Error al hacer login:", json);
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-    }
-  };
-
+  // Función para cerrar sesión y limpiar el almacenamiento
   const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
     setUser(null);
-    navigate("/login");
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+};
