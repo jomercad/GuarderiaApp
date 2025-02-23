@@ -79,12 +79,19 @@ router.get(
       if (req.user.role === "parent") {
         console.log("Parent ID desde el token:", req.user.role);
         console.log("Parent role desde el token:", req.user.parentId);
-        const parent = await db.Parent.findByPk(req.user.parentId, {
-          include: [{ model: db.Student, as: "students" }],
+        const students = await db.Student.findAll({
+          include: [
+            {
+              model: db.Parent,
+              as: "parents",
+              where: { id: req.user.parentId },
+              through: { attributes: [] },
+            },
+          ],
         });
         console.log("Padre encontrado:", parent?.id);
         console.log("Estudiantes asociados:", parent?.students?.length);
-        return res.json(parent.students);
+        return res.json(students);
       }
 
       // Admin/teacher ven todos
