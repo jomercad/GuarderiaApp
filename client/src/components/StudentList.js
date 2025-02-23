@@ -40,16 +40,15 @@ function StudentList() {
 
         const data = await response.json();
 
-        // // Filtrar estudiantes para padres
-        // if (user?.role === "parent") {
-        //   const parentStudents = data.filter((student) =>
-        //     student.parents.some((parent) => parent.id === user.parentId)
-        //   );
-        //   setStudents(parentStudents);
-        // } else {
-        //   setStudents(data);
-        // }
-        setStudents(data);
+        // Filtrar estudiantes para padres
+        if (user?.role === "parent") {
+          const parentStudents = data.filter((student) =>
+            student.parents.some((parent) => parent.id === user.parentId)
+          );
+          setStudents(parentStudents);
+        } else {
+          setStudents(data);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
