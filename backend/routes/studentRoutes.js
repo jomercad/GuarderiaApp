@@ -74,6 +74,8 @@ router.get(
   authenticateJWT,
   authorizeRoles(["admin", "teacher", "parent"]),
   async (req, res) => {
+    console.log(req);
+    // console.log("Parent role desde el token:", req.user.parentId);
     try {
       // Padres solo ven sus estudiantes
       if (req.user.role === "parent") {
