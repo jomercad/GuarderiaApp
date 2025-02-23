@@ -77,6 +77,7 @@ router.get(
     try {
       // Padres solo ven sus estudiantes
       if (req.user.role === "parent") {
+        console.log("Parent ID desde el token:", req.user.parentId);
         const parent = await db.Parent.findByPk(req.user.parentId, {
           include: [{ model: db.Student, as: "students" }],
         });
@@ -89,6 +90,10 @@ router.get(
       const students = await db.Student.findAll({
         include: [{ model: db.Parent, as: "parents" }],
       });
+      console.log(
+        "Estudiantes asociados:",
+        parent?.students?.map((s) => s.id)
+      );
       res.json(students);
     } catch (error) {
       console.error("Error en GET /api/students:", error);
