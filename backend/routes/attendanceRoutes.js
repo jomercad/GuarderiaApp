@@ -2,10 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models");
-const { verifyToken } = require("../middlewares/auth");
-
-// Aplica el middleware de verificación de token a todas las rutas de este router
-router.use(verifyToken);
 
 // Registrar asistencia para un grupo en una fecha determinada
 router.post("/", async (req, res) => {

@@ -1,5 +1,5 @@
 // frontend/src/components/StudentList.js
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Paper,
@@ -11,38 +11,22 @@ import {
   Box,
 } from "@mui/material";
 import { Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 
 function StudentList() {
   const [students, setStudents] = useState([]);
-  const { user } = useContext(AuthContext);
-  const token = user?.token;
 
   useEffect(() => {
-    // Se incluye el token en el header Authorization para acceder a rutas protegidas
-    fetch("/api/students", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    // Realiza la petición a la API para obtener los estudiantes
+    fetch("/api/students")
       .then((res) => res.json())
       .then((data) => setStudents(data))
       .catch((err) => console.error(err));
-  }, [token]);
-
-  // Si el usuario es "padre", filtrar para mostrar sólo a sus hijos
-  let displayedStudents = students;
-  if (user && user.role === "padre" && user.parentId) {
-    displayedStudents = students.filter(
-      (student) =>
-        student.parents &&
-        student.parents.some((parent) => parent.id === user.parentId)
-    );
-  }
+  }, []);
 
   const handleDelete = async (id) => {
     try {
       await fetch(`/api/students/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
       setStudents(students.filter((student) => student.id !== id));
     } catch (error) {
@@ -56,13 +40,13 @@ function StudentList() {
         <Typography variant="h5" align="center" gutterBottom>
           Lista de Estudiantes
         </Typography>
-        {displayedStudents.length === 0 ? (
+        {students.length === 0 ? (
           <Typography variant="body1" align="center">
             No se encontraron estudiantes.
           </Typography>
         ) : (
           <List>
-            {displayedStudents.map((student) => (
+            {students.map((student) => (
               <ListItem key={student.id} divider>
                 <ListItemText
                   primary={student.name}
@@ -75,33 +59,28 @@ function StudentList() {
                     variant="outlined"
                     component={Link}
                     to={`/student/${student.id}`}
-                    size="small"
+                    size="small" // Cambia el tamaño a pequeño
                     sx={{ mr: 1 }}
                   >
                     Ver Detalle
                   </Button>
-                  {/* Los padres sólo pueden visualizar */}
-                  {user && user.role !== "padre" && (
-                    <>
-                      <Button
-                        variant="outlined"
-                        component={Link}
-                        to={`/student/edit/${student.id}`}
-                        size="small"
-                        sx={{ mr: 1 }}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(student.id)}
-                        size="small"
-                      >
-                        Eliminar
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    variant="outlined"
+                    component={Link}
+                    to={`/student/edit/${student.id}`}
+                    size="small" // Cambia el tamaño a pequeño
+                    sx={{ mr: 1 }}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleDelete(student.id)}
+                    size="small" // Cambia el tamaño a pequeño
+                  >
+                    Eliminar
+                  </Button>
                 </Box>
               </ListItem>
             ))}

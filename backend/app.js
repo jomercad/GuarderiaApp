@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 // backend/app.js
 const express = require("express");
 const cors = require("cors");
@@ -21,13 +23,13 @@ const parentRoutes = require("./routes/parentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
-const authRoutes = require("./routes/authRoutes");
+const testDbRoutes = require("./routes/testDB");
 
 app.use("/api/parents", parentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/attendances", attendanceRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/api/test-db", testDbRoutes);
 
 if (process.env.NODE_ENV === "production") {
   // Sirve los archivos estáticos desde el build de React

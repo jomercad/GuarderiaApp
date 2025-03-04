@@ -2,10 +2,6 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../models");
-const { verifyToken } = require("../middlewares/auth");
-
-// Aplica el middleware de verificación de token a todas las rutas de este router
-router.use(verifyToken);
 
 // Crear un estudiante y sus padres
 router.post("/", async (req, res) => {
@@ -54,7 +50,7 @@ router.post("/", async (req, res) => {
     // Obtener el estudiante con sus relaciones
     const studentWithRelations = await db.Student.findByPk(student.id, {
       include: [
-        { model: db.Parent, as: "parents" },
+        { model: db.Parent, as: "parents" }, // Incluir padres
         { model: db.Group, as: "groups" },
         { model: db.Attendance, as: "attendances" },
       ],
@@ -74,7 +70,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const students = await db.Student.findAll({
-      include: [{ model: db.Parent, as: "parents" }],
+      include: [{ model: db.Parent, as: "parents" }], // Incluir padres
     });
     res.json(students);
   } catch (error) {
@@ -143,7 +139,7 @@ router.put("/:id", async (req, res) => {
 
     res.json(student);
   } catch (error) {
-    console.error("Error en PUT /api/students:", error);
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -158,7 +154,7 @@ router.delete("/:id", async (req, res) => {
     await student.destroy();
     res.status(204).send(); // 204 No Content
   } catch (error) {
-    console.error("Error en DELETE /api/students:", error);
+    console.error("Error en GET /api/students:", error);
     res.status(500).json({ error: error.message });
   }
 });
