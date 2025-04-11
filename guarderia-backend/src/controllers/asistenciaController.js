@@ -1,0 +1,42 @@
+const { Asistencia, Grupo, Estudiante } = require("../models");
+
+exports.registrarAsistencia = async (req, res) => {
+  try {
+    const { fecha, grupoId, registros } = req.body;
+
+    const result = await sequelize.transaction(async (t) => {
+      return Promise.all(
+        registros.map(async (registro) => {
+          return Asistencia.create(
+            {
+              fecha,
+              grupoId,
+              estudianteId: registro.estudianteId,
+              presente: registro.presente,
+            },
+            { transaction: t }
+          );
+        })
+      );
+    });
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.obtenerAsistenciasPorGrupo = async (req, res) => {
+  try {
+    const { grupoId, fecha } = req.query;
+
+    const asistencias = await Asistencia.findAll({
+      where: { grupoId, fecha },
+      include: [Estudiante],
+    });
+
+    res.json(asistencias);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
