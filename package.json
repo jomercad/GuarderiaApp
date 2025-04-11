@@ -1,6 +1,11 @@
 {
   "name": "guarderia-app-v1",
   "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "client"
+  ],
   "scripts": {
     "start": "node backend/app.js",
     "dev": "nodemon backend/app.js",

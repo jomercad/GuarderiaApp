@@ -38,6 +38,9 @@ db.Attendance = require("./attendance")(sequelize, DataTypes);
 // Importar modelo de relación Student-Parent
 db.StudentParent = require("./studentParent")(sequelize, DataTypes);
 
+// Nuevo modelo de Usuario
+db.User = require("./user")(sequelize, DataTypes);
+
 // Tabla de relación para la relación muchos a muchos entre estudiantes y grupos
 db.GroupStudent = sequelize.define(
   "GroupStudent",
