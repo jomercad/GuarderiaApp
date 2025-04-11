@@ -1,6 +1,4 @@
-// backend/models/User.js
-const bcrypt = require("bcrypt");
-
+// backend/models/user.js
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
@@ -16,33 +14,22 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       role: {
-        type: DataTypes.ENUM("admin", "teacher", "parent"),
+        type: DataTypes.ENUM("admin", "maestro", "padre"),
         allowNull: false,
-        defaultValue: "parent",
       },
       parentId: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        references: { model: "parents", key: "id" },
+        references: {
+          model: "parents",
+          key: "id",
+        },
       },
     },
     {
       freezeTableName: true,
       tableName: "users",
-      // hooks: {
-      //   beforeCreate: async (user) => {
-      //     if (user.password) {
-      //       const salt = await bcrypt.genSalt(10);
-      //       user.password = await bcrypt.hash(user.password, salt);
-      //     }
-      //   },
-      // },
     }
   );
-
-  User.prototype.validPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-  };
-
   return User;
 };

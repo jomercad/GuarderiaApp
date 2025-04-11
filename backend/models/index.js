@@ -1,20 +1,22 @@
 // backend/models/index.js
 const { Sequelize, DataTypes } = require("sequelize");
 
-// Elimina la URL de respaldo de AWS RDS para evitar conflictos
-const connectionString = process.env.DATABASE_URL; // Solo Heroku
+const connectionString = process.env.DATABASE_URL;
+const isProduction = process.env.NODE_ENV === "production";
 
 const sequelize = new Sequelize(connectionString, {
   dialect: "postgres",
   protocol: "postgres",
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-    // Añade esto para conexiones Pooling en Heroku
-    keepAlive: true,
-  },
+  dialectOptions: isProduction
+    ? {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+        // Añade esto para conexiones Pooling en Heroku
+        keepAlive: true,
+      }
+    : {}, // En desarrollo no usa SSL
   pool: {
     max: 5,
     min: 0,
@@ -96,5 +98,9 @@ db.Group.hasMany(db.Attendance, {
   foreignKey: "groupId",
   as: "attendances",
 });
+
+// Relación User-Parent
+db.User.belongsTo(db.Parent, { foreignKey: "parentId" });
+db.Parent.hasOne(db.User, { foreignKey: "parentId" });
 
 module.exports = db;
