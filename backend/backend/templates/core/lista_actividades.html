@@ -1,0 +1,6 @@
+<h1>Lista de Actividades</h1>
+<ul>
+    {% for actividad in actividades %}
+        <li>{{ actividad.titulo }} - {{ actividad.fecha }}</li>
+    {% endfor %}
+</ul>
